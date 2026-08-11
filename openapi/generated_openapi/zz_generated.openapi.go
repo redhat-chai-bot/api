@@ -496,9 +496,11 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		configv1.UpdateHistory{}.OpenAPIModelName():                                            schema_openshift_api_config_v1_UpdateHistory(ref),
 		configv1.UsernameClaimMapping{}.OpenAPIModelName():                                     schema_openshift_api_config_v1_UsernameClaimMapping(ref),
 		configv1.UsernamePrefix{}.OpenAPIModelName():                                           schema_openshift_api_config_v1_UsernamePrefix(ref),
+		configv1.VSphereComponentCredentials{}.OpenAPIModelName():                              schema_openshift_api_config_v1_VSphereComponentCredentials(ref),
 		configv1.VSphereFailureDomainHostGroup{}.OpenAPIModelName():                            schema_openshift_api_config_v1_VSphereFailureDomainHostGroup(ref),
 		configv1.VSphereFailureDomainRegionAffinity{}.OpenAPIModelName():                       schema_openshift_api_config_v1_VSphereFailureDomainRegionAffinity(ref),
 		configv1.VSphereFailureDomainZoneAffinity{}.OpenAPIModelName():                         schema_openshift_api_config_v1_VSphereFailureDomainZoneAffinity(ref),
+		configv1.VSpherePermissionScope{}.OpenAPIModelName():                                   schema_openshift_api_config_v1_VSpherePermissionScope(ref),
 		configv1.VSpherePlatformFailureDomainSpec{}.OpenAPIModelName():                         schema_openshift_api_config_v1_VSpherePlatformFailureDomainSpec(ref),
 		configv1.VSpherePlatformLoadBalancer{}.OpenAPIModelName():                              schema_openshift_api_config_v1_VSpherePlatformLoadBalancer(ref),
 		configv1.VSpherePlatformNodeNetworking{}.OpenAPIModelName():                            schema_openshift_api_config_v1_VSpherePlatformNodeNetworking(ref),
@@ -507,6 +509,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		configv1.VSpherePlatformStatus{}.OpenAPIModelName():                                    schema_openshift_api_config_v1_VSpherePlatformStatus(ref),
 		configv1.VSpherePlatformTopology{}.OpenAPIModelName():                                  schema_openshift_api_config_v1_VSpherePlatformTopology(ref),
 		configv1.VSpherePlatformVCenterSpec{}.OpenAPIModelName():                               schema_openshift_api_config_v1_VSpherePlatformVCenterSpec(ref),
+		configv1.VSphereSecretReference{}.OpenAPIModelName():                                   schema_openshift_api_config_v1_VSphereSecretReference(ref),
 		configv1.VaultAppRoleAuthentication{}.OpenAPIModelName():                               schema_openshift_api_config_v1_VaultAppRoleAuthentication(ref),
 		configv1.VaultAuthentication{}.OpenAPIModelName():                                      schema_openshift_api_config_v1_VaultAuthentication(ref),
 		configv1.VaultConfigMapReference{}.OpenAPIModelName():                                  schema_openshift_api_config_v1_VaultConfigMapReference(ref),
@@ -22439,6 +22442,49 @@ func schema_openshift_api_config_v1_UsernamePrefix(ref common.ReferenceCallback)
 	}
 }
 
+func schema_openshift_api_config_v1_VSphereComponentCredentials(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "VSphereComponentCredentials holds references to per-component credential secrets for the vSphere infrastructure provider. Each field references a secret in the openshift-config namespace. At least one component credential must be specified.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"machineAPI": {
+						SchemaProps: spec.SchemaProps{
+							Description: "machineAPI is an optional reference to the secret that holds the vSphere credentials used by the Machine API Operator. When omitted, the Machine API Operator will use the shared credential.",
+							Default:     map[string]interface{}{},
+							Ref:         ref(configv1.VSphereSecretReference{}.OpenAPIModelName()),
+						},
+					},
+					"csiDriver": {
+						SchemaProps: spec.SchemaProps{
+							Description: "csiDriver is an optional reference to the secret that holds the vSphere credentials used by the CSI Driver. When omitted, the CSI Driver will use the shared credential.",
+							Default:     map[string]interface{}{},
+							Ref:         ref(configv1.VSphereSecretReference{}.OpenAPIModelName()),
+						},
+					},
+					"cloudController": {
+						SchemaProps: spec.SchemaProps{
+							Description: "cloudController is an optional reference to the secret that holds the vSphere credentials used by the Cloud Controller Manager. When omitted, the Cloud Controller Manager will use the shared credential.",
+							Default:     map[string]interface{}{},
+							Ref:         ref(configv1.VSphereSecretReference{}.OpenAPIModelName()),
+						},
+					},
+					"diagnostics": {
+						SchemaProps: spec.SchemaProps{
+							Description: "diagnostics is an optional reference to the secret that holds the vSphere credentials used for diagnostics and health checks. When omitted, diagnostics will use the shared credential.",
+							Default:     map[string]interface{}{},
+							Ref:         ref(configv1.VSphereSecretReference{}.OpenAPIModelName()),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			configv1.VSphereSecretReference{}.OpenAPIModelName()},
+	}
+}
+
 func schema_openshift_api_config_v1_VSphereFailureDomainHostGroup(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -22550,6 +22596,41 @@ func schema_openshift_api_config_v1_VSphereFailureDomainZoneAffinity(ref common.
 		},
 		Dependencies: []string{
 			configv1.VSphereFailureDomainHostGroup{}.OpenAPIModelName()},
+	}
+}
+
+func schema_openshift_api_config_v1_VSpherePermissionScope(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "VSpherePermissionScope describes the scope of permissions granted to a vSphere credential within the vCenter hierarchy.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"type": {
+						SchemaProps: spec.SchemaProps{
+							Description: "type specifies the level in the vCenter hierarchy at which the permission is applied. Valid values are \"vCenter\", \"Datacenter\", \"Cluster\", \"ResourcePool\", \"Folder\", \"Datastore\", and \"Network\".",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"vcenter": {
+						SchemaProps: spec.SchemaProps{
+							Description: "vcenter is the fully qualified domain name or IP address of the vCenter server that this permission scope applies to. The vcenter must be between 1 and 256 characters long.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"path": {
+						SchemaProps: spec.SchemaProps{
+							Description: "path is the inventory path of the object in vCenter at which the permission is applied, for example \"/MyDatacenter/host/MyCluster\". The path must be between 1 and 2048 characters long.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"type", "vcenter", "path"},
+			},
+		},
 	}
 }
 
@@ -22855,11 +22936,25 @@ func schema_openshift_api_config_v1_VSpherePlatformSpec(ref common.ReferenceCall
 							},
 						},
 					},
+					"credentialsMode": {
+						SchemaProps: spec.SchemaProps{
+							Description: "credentialsMode is an optional field that determines how credentials are managed for the vSphere infrastructure provider. Valid values are \"Passthrough\" and \"PerComponent\". When set to \"Passthrough\", the cloud credential operator will pass through the shared credential to all components that require vSphere credentials. When set to \"PerComponent\", the cloud credential operator will manage individual credentials for each component, allowing for finer-grained permission management. When omitted, the credential management strategy is left to the cloud credential operator to determine a suitable default, which is subject to change over time. The current default is \"Passthrough\".",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"componentCredentials": {
+						SchemaProps: spec.SchemaProps{
+							Description: "componentCredentials is an optional field that contains references to secrets in the openshift-config namespace that hold per-component vSphere credentials. Each component (Machine API, CSI Driver, Cloud Controller, Diagnostics) can have its own dedicated credential secret for fine-grained access control. When omitted, per-component credentials are not configured and the shared credential is used by all components.",
+							Default:     map[string]interface{}{},
+							Ref:         ref(configv1.VSphereComponentCredentials{}.OpenAPIModelName()),
+						},
+					},
 				},
 			},
 		},
 		Dependencies: []string{
-			configv1.VSpherePlatformFailureDomainSpec{}.OpenAPIModelName(), configv1.VSpherePlatformNodeNetworking{}.OpenAPIModelName(), configv1.VSpherePlatformVCenterSpec{}.OpenAPIModelName()},
+			configv1.VSphereComponentCredentials{}.OpenAPIModelName(), configv1.VSpherePlatformFailureDomainSpec{}.OpenAPIModelName(), configv1.VSpherePlatformNodeNetworking{}.OpenAPIModelName(), configv1.VSpherePlatformVCenterSpec{}.OpenAPIModelName()},
 	}
 }
 
@@ -23098,6 +23193,34 @@ func schema_openshift_api_config_v1_VSpherePlatformVCenterSpec(ref common.Refere
 					},
 				},
 				Required: []string{"server", "datacenters"},
+			},
+		},
+	}
+}
+
+func schema_openshift_api_config_v1_VSphereSecretReference(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "VSphereSecretReference holds the name and namespace of a secret that contains vSphere credentials.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name is the metadata.name of the referenced secret. The name must be between 1 and 253 characters long.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"namespace": {
+						SchemaProps: spec.SchemaProps{
+							Description: "namespace is the metadata.namespace of the referenced secret. The secret must reside in the \"openshift-config\" namespace. The only valid value is \"openshift-config\".",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"name", "namespace"},
 			},
 		},
 	}

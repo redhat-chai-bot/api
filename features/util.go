@@ -214,7 +214,8 @@ func (b *featureGateBuilder) register() (configv1.FeatureGateName, error) {
 
 	case !strings.HasPrefix(b.enhancementPRURL, "https://github.com/openshift/enhancements/pull/") &&
 		!strings.HasPrefix(b.enhancementPRURL, "https://github.com/kubernetes/enhancements/issues/") &&
-		!strings.HasPrefix(b.enhancementPRURL, "https://github.com/ovn-kubernetes/ovn-kubernetes/pull/"):
+		!strings.HasPrefix(b.enhancementPRURL, "https://github.com/ovn-kubernetes/ovn-kubernetes/pull/") &&
+		!strings.HasPrefix(b.enhancementPRURL, "https://github.com/openshift-splat-team/enhancements/pull/"):
 		return "", fmt.Errorf("FeatureGate/%s enhancementPR format is incorrect; must be like https://github.com/openshift/enhancements/pull/#### or https://github.com/kubernetes/enhancements/issues/#### or https://github.com/ovn-kubernetes/ovn-kubernetes/pull/####", b.name)
 
 	case enhancementPRErr != nil:

@@ -980,6 +980,135 @@ spec:
                                   rule: 'size(self) == 2 && isIP(self[0]) && isIP(self[1])
                                     ? ip(self[0]).family() != ip(self[1]).family()
                                     : true'
+                              componentCredentials:
+                                description: |-
+                                  componentCredentials is an optional field that contains references to
+                                  secrets in the openshift-config namespace that hold per-component
+                                  vSphere credentials.
+                                  Each component (Machine API, CSI Driver, Cloud Controller, Diagnostics)
+                                  can have its own dedicated credential secret for fine-grained access control.
+                                  When omitted, per-component credentials are not configured and the shared
+                                  credential is used by all components.
+                                minProperties: 1
+                                properties:
+                                  cloudController:
+                                    description: |-
+                                      cloudController is an optional reference to the secret that holds the
+                                      vSphere credentials used by the Cloud Controller Manager.
+                                      When omitted, the Cloud Controller Manager will use the shared credential.
+                                    properties:
+                                      name:
+                                        description: |-
+                                          name is the metadata.name of the referenced secret.
+                                          The name must be between 1 and 253 characters long.
+                                        maxLength: 253
+                                        minLength: 1
+                                        type: string
+                                      namespace:
+                                        description: |-
+                                          namespace is the metadata.namespace of the referenced secret.
+                                          The secret must reside in the "openshift-config" namespace.
+                                          The only valid value is "openshift-config".
+                                        enum:
+                                        - openshift-config
+                                        type: string
+                                    required:
+                                    - name
+                                    - namespace
+                                    type: object
+                                  csiDriver:
+                                    description: |-
+                                      csiDriver is an optional reference to the secret that holds the
+                                      vSphere credentials used by the CSI Driver.
+                                      When omitted, the CSI Driver will use the shared credential.
+                                    properties:
+                                      name:
+                                        description: |-
+                                          name is the metadata.name of the referenced secret.
+                                          The name must be between 1 and 253 characters long.
+                                        maxLength: 253
+                                        minLength: 1
+                                        type: string
+                                      namespace:
+                                        description: |-
+                                          namespace is the metadata.namespace of the referenced secret.
+                                          The secret must reside in the "openshift-config" namespace.
+                                          The only valid value is "openshift-config".
+                                        enum:
+                                        - openshift-config
+                                        type: string
+                                    required:
+                                    - name
+                                    - namespace
+                                    type: object
+                                  diagnostics:
+                                    description: |-
+                                      diagnostics is an optional reference to the secret that holds the
+                                      vSphere credentials used for diagnostics and health checks.
+                                      When omitted, diagnostics will use the shared credential.
+                                    properties:
+                                      name:
+                                        description: |-
+                                          name is the metadata.name of the referenced secret.
+                                          The name must be between 1 and 253 characters long.
+                                        maxLength: 253
+                                        minLength: 1
+                                        type: string
+                                      namespace:
+                                        description: |-
+                                          namespace is the metadata.namespace of the referenced secret.
+                                          The secret must reside in the "openshift-config" namespace.
+                                          The only valid value is "openshift-config".
+                                        enum:
+                                        - openshift-config
+                                        type: string
+                                    required:
+                                    - name
+                                    - namespace
+                                    type: object
+                                  machineAPI:
+                                    description: |-
+                                      machineAPI is an optional reference to the secret that holds the
+                                      vSphere credentials used by the Machine API Operator.
+                                      When omitted, the Machine API Operator will use the shared credential.
+                                    properties:
+                                      name:
+                                        description: |-
+                                          name is the metadata.name of the referenced secret.
+                                          The name must be between 1 and 253 characters long.
+                                        maxLength: 253
+                                        minLength: 1
+                                        type: string
+                                      namespace:
+                                        description: |-
+                                          namespace is the metadata.namespace of the referenced secret.
+                                          The secret must reside in the "openshift-config" namespace.
+                                          The only valid value is "openshift-config".
+                                        enum:
+                                        - openshift-config
+                                        type: string
+                                    required:
+                                    - name
+                                    - namespace
+                                    type: object
+                                type: object
+                              credentialsMode:
+                                description: |-
+                                  credentialsMode is an optional field that determines how credentials are
+                                  managed for the vSphere infrastructure provider.
+                                  Valid values are "Passthrough" and "PerComponent".
+                                  When set to "Passthrough", the cloud credential operator will pass through
+                                  the shared credential to all components that require vSphere credentials.
+                                  When set to "PerComponent", the cloud credential operator will manage
+                                  individual credentials for each component, allowing for finer-grained
+                                  permission management.
+                                  When omitted, the credential management strategy is left to the cloud
+                                  credential operator to determine a suitable default, which is subject to
+                                  change over time. The current default is "Passthrough".
+                                enum:
+                                - Passthrough
+                                - PerComponent
+                                type: string
                               failureDomains:
                                 description: |-
                                   failureDomains contains the definition of region, zone and the vCenter topology.

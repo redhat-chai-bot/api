@@ -2139,6 +2139,18 @@ func (PowerVSServiceEndpoint) SwaggerDoc() map[string]string {
 	return map_PowerVSServiceEndpoint
 }
 
+var map_VSphereComponentCredentials = map[string]string{
+	"":                "VSphereComponentCredentials holds references to per-component credential secrets for the vSphere infrastructure provider. Each field references a secret in the openshift-config namespace. At least one component credential must be specified.",
+	"machineAPI":      "machineAPI is an optional reference to the secret that holds the vSphere credentials used by the Machine API Operator. When omitted, the Machine API Operator will use the shared credential.",
+	"csiDriver":       "csiDriver is an optional reference to the secret that holds the vSphere credentials used by the CSI Driver. When omitted, the CSI Driver will use the shared credential.",
+	"cloudController": "cloudController is an optional reference to the secret that holds the vSphere credentials used by the Cloud Controller Manager. When omitted, the Cloud Controller Manager will use the shared credential.",
+	"diagnostics":     "diagnostics is an optional reference to the secret that holds the vSphere credentials used for diagnostics and health checks. When omitted, diagnostics will use the shared credential.",
+}
+
+func (VSphereComponentCredentials) SwaggerDoc() map[string]string {
+	return map_VSphereComponentCredentials
+}
+
 var map_VSphereFailureDomainHostGroup = map[string]string{
 	"":           "VSphereFailureDomainHostGroup holds the vmGroup and the hostGroup names in vCenter corresponds to a vm-host group of type Virtual Machine and Host respectively. Is also contains the vmHostRule which is an affinity vm-host rule in vCenter.",
 	"vmGroup":    "vmGroup is the name of the vm-host group of type virtual machine within vCenter for this failure domain. vmGroup is limited to 80 characters. This field is required when the VSphereFailureDomain ZoneType is HostGroup",
@@ -2167,6 +2179,17 @@ var map_VSphereFailureDomainZoneAffinity = map[string]string{
 
 func (VSphereFailureDomainZoneAffinity) SwaggerDoc() map[string]string {
 	return map_VSphereFailureDomainZoneAffinity
+}
+
+var map_VSpherePermissionScope = map[string]string{
+	"":        "VSpherePermissionScope describes the scope of permissions granted to a vSphere credential within the vCenter hierarchy.",
+	"type":    "type specifies the level in the vCenter hierarchy at which the permission is applied. Valid values are \"vCenter\", \"Datacenter\", \"Cluster\", \"ResourcePool\", \"Folder\", \"Datastore\", and \"Network\".",
+	"vcenter": "vcenter is the fully qualified domain name or IP address of the vCenter server that this permission scope applies to. The vcenter must be between 1 and 256 characters long.",
+	"path":    "path is the inventory path of the object in vCenter at which the permission is applied, for example \"/MyDatacenter/host/MyCluster\". The path must be between 1 and 2048 characters long.",
+}
+
+func (VSpherePermissionScope) SwaggerDoc() map[string]string {
+	return map_VSpherePermissionScope
 }
 
 var map_VSpherePlatformFailureDomainSpec = map[string]string{
@@ -2222,6 +2245,8 @@ var map_VSpherePlatformSpec = map[string]string{
 	"apiServerInternalIPs": "apiServerInternalIPs are the IP addresses to contact the Kubernetes API server that can be used by components inside the cluster, like kubelets using the infrastructure rather than Kubernetes networking. These are the IPs for a self-hosted load balancer in front of the API servers. In dual stack clusters this list contains two IP addresses, one from IPv4 family and one from IPv6. In single stack clusters a single IP address is expected. When omitted, values from the status.apiServerInternalIPs will be used. Once set, the list cannot be completely removed (but its second entry can).",
 	"ingressIPs":           "ingressIPs are the external IPs which route to the default ingress controller. The IPs are suitable targets of a wildcard DNS record used to resolve default route host names. In dual stack clusters this list contains two IP addresses, one from IPv4 family and one from IPv6. In single stack clusters a single IP address is expected. When omitted, values from the status.ingressIPs will be used. Once set, the list cannot be completely removed (but its second entry can).",
 	"machineNetworks":      "machineNetworks are IP networks used to connect all the OpenShift cluster nodes. Each network is provided in the CIDR format and should be IPv4 or IPv6, for example \"10.0.0.0/8\" or \"fd00::/8\".",
+	"credentialsMode":      "credentialsMode is an optional field that determines how credentials are managed for the vSphere infrastructure provider. Valid values are \"Passthrough\" and \"PerComponent\". When set to \"Passthrough\", the cloud credential operator will pass through the shared credential to all components that require vSphere credentials. When set to \"PerComponent\", the cloud credential operator will manage individual credentials for each component, allowing for finer-grained permission management. When omitted, the credential management strategy is left to the cloud credential operator to determine a suitable default, which is subject to change over time. The current default is \"Passthrough\".",
+	"componentCredentials": "componentCredentials is an optional field that contains references to secrets in the openshift-config namespace that hold per-component vSphere credentials. Each component (Machine API, CSI Driver, Cloud Controller, Diagnostics) can have its own dedicated credential secret for fine-grained access control. When omitted, per-component credentials are not configured and the shared credential is used by all components.",
 }
 
 func (VSpherePlatformSpec) SwaggerDoc() map[string]string {
@@ -2268,6 +2293,16 @@ var map_VSpherePlatformVCenterSpec = map[string]string{
 
 func (VSpherePlatformVCenterSpec) SwaggerDoc() map[string]string {
 	return map_VSpherePlatformVCenterSpec
+}
+
+var map_VSphereSecretReference = map[string]string{
+	"":          "VSphereSecretReference holds the name and namespace of a secret that contains vSphere credentials.",
+	"name":      "name is the metadata.name of the referenced secret. The name must be between 1 and 253 characters long.",
+	"namespace": "namespace is the metadata.namespace of the referenced secret. The secret must reside in the \"openshift-config\" namespace. The only valid value is \"openshift-config\".",
+}
+
+func (VSphereSecretReference) SwaggerDoc() map[string]string {
+	return map_VSphereSecretReference
 }
 
 var map_AWSIngressSpec = map[string]string{

@@ -1796,7 +1796,162 @@ type VSpherePlatformSpec struct {
 	// +kubebuilder:validation:XValidation:rule="self.all(x, self.exists_one(y, x == y))"
 	// +optional
 	MachineNetworks []CIDR `json:"machineNetworks"`
+
+	// credentialsMode is an optional field that determines how credentials are
+	// managed for the vSphere infrastructure provider.
+	// Valid values are "Passthrough" and "PerComponent".
+	// When set to "Passthrough", the cloud credential operator will pass through
+	// the shared credential to all components that require vSphere credentials.
+	// When set to "PerComponent", the cloud credential operator will manage
+	// individual credentials for each component, allowing for finer-grained
+	// permission management.
+	// When omitted, the credential management strategy is left to the cloud
+	// credential operator to determine a suitable default, which is subject to
+	// change over time. The current default is "Passthrough".
+	// +openshift:enable:FeatureGate=VSphereMultiAccountCredentials
+	// +optional
+	CredentialsMode VSphereCredentialsMode `json:"credentialsMode,omitempty"`
+
+	// componentCredentials is an optional field that contains references to
+	// secrets in the openshift-config namespace that hold per-component
+	// vSphere credentials.
+	// Each component (Machine API, CSI Driver, Cloud Controller, Diagnostics)
+	// can have its own dedicated credential secret for fine-grained access control.
+	// When omitted, per-component credentials are not configured and the shared
+	// credential is used by all components.
+	// +openshift:enable:FeatureGate=VSphereMultiAccountCredentials
+	// +optional
+	ComponentCredentials VSphereComponentCredentials `json:"componentCredentials,omitempty,omitzero"`
 }
+
+// VSphereCredentialsMode describes how credentials are managed for the vSphere
+// infrastructure provider.
+// Valid values are "Passthrough" and "PerComponent".
+// +kubebuilder:validation:Enum=Passthrough;PerComponent
+type VSphereCredentialsMode string
+
+const (
+	// VSphereCredentialsModePassthrough indicates that the cloud credential
+	// operator will pass through the shared credential to all components.
+	VSphereCredentialsModePassthrough VSphereCredentialsMode = "Passthrough"
+
+	// VSphereCredentialsModePerComponent indicates that the cloud credential
+	// operator will manage individual credentials for each component.
+	VSphereCredentialsModePerComponent VSphereCredentialsMode = "PerComponent"
+)
+
+// VSphereSecretReference holds the name and namespace of a secret that contains
+// vSphere credentials.
+type VSphereSecretReference struct {
+	// name is the metadata.name of the referenced secret.
+	// The name must be between 1 and 253 characters long.
+	// +required
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=253
+	Name string `json:"name,omitempty"`
+
+	// namespace is the metadata.namespace of the referenced secret.
+	// The secret must reside in the "openshift-config" namespace.
+	// The only valid value is "openshift-config".
+	// +required
+	// +kubebuilder:validation:Enum=openshift-config
+	Namespace string `json:"namespace,omitempty"`
+}
+
+// VSphereComponentCredentials holds references to per-component credential
+// secrets for the vSphere infrastructure provider. Each field references a
+// secret in the openshift-config namespace.
+// At least one component credential must be specified.
+// +kubebuilder:validation:MinProperties=1
+type VSphereComponentCredentials struct {
+	// machineAPI is an optional reference to the secret that holds the
+	// vSphere credentials used by the Machine API Operator.
+	// When omitted, the Machine API Operator will use the shared credential.
+	// +optional
+	MachineAPI VSphereSecretReference `json:"machineAPI,omitempty,omitzero"`
+
+	// csiDriver is an optional reference to the secret that holds the
+	// vSphere credentials used by the CSI Driver.
+	// When omitted, the CSI Driver will use the shared credential.
+	// +optional
+	CSIDriver VSphereSecretReference `json:"csiDriver,omitempty,omitzero"`
+
+	// cloudController is an optional reference to the secret that holds the
+	// vSphere credentials used by the Cloud Controller Manager.
+	// When omitted, the Cloud Controller Manager will use the shared credential.
+	// +optional
+	CloudController VSphereSecretReference `json:"cloudController,omitempty,omitzero"`
+
+	// diagnostics is an optional reference to the secret that holds the
+	// vSphere credentials used for diagnostics and health checks.
+	// When omitted, diagnostics will use the shared credential.
+	// +optional
+	Diagnostics VSphereSecretReference `json:"diagnostics,omitempty,omitzero"`
+}
+
+// VSpherePermissionScope describes the scope of permissions granted to a
+// vSphere credential within the vCenter hierarchy.
+type VSpherePermissionScope struct {
+	// type specifies the level in the vCenter hierarchy at which the
+	// permission is applied.
+	// Valid values are "vCenter", "Datacenter", "Cluster", "ResourcePool",
+	// "Folder", "Datastore", and "Network".
+	// +required
+	Type VSpherePermissionScopeType `json:"type,omitempty"`
+
+	// vcenter is the fully qualified domain name or IP address of the
+	// vCenter server that this permission scope applies to.
+	// The vcenter must be between 1 and 256 characters long.
+	// +required
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=256
+	VCenter string `json:"vcenter,omitempty"`
+
+	// path is the inventory path of the object in vCenter at which the
+	// permission is applied, for example "/MyDatacenter/host/MyCluster".
+	// The path must be between 1 and 2048 characters long.
+	// +required
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=2048
+	Path string `json:"path,omitempty"`
+}
+
+// VSpherePermissionScopeType describes the type of vCenter object that
+// a permission scope applies to.
+// Valid values are "vCenter", "Datacenter", "Cluster", "ResourcePool",
+// "Folder", "Datastore", and "Network".
+// +kubebuilder:validation:Enum=vCenter;Datacenter;Cluster;ResourcePool;Folder;Datastore;Network
+type VSpherePermissionScopeType string
+
+const (
+	// VSpherePermissionScopeVCenter indicates the permission is applied at the
+	// vCenter level.
+	VSpherePermissionScopeVCenter VSpherePermissionScopeType = "vCenter"
+
+	// VSpherePermissionScopeDatacenter indicates the permission is applied at
+	// the datacenter level.
+	VSpherePermissionScopeDatacenter VSpherePermissionScopeType = "Datacenter"
+
+	// VSpherePermissionScopeCluster indicates the permission is applied at the
+	// compute cluster level.
+	VSpherePermissionScopeCluster VSpherePermissionScopeType = "Cluster"
+
+	// VSpherePermissionScopeResourcePool indicates the permission is applied at
+	// the resource pool level.
+	VSpherePermissionScopeResourcePool VSpherePermissionScopeType = "ResourcePool"
+
+	// VSpherePermissionScopeFolder indicates the permission is applied at the
+	// folder level.
+	VSpherePermissionScopeFolder VSpherePermissionScopeType = "Folder"
+
+	// VSpherePermissionScopeDatastore indicates the permission is applied at
+	// the datastore level.
+	VSpherePermissionScopeDatastore VSpherePermissionScopeType = "Datastore"
+
+	// VSpherePermissionScopeNetwork indicates the permission is applied at the
+	// network level.
+	VSpherePermissionScopeNetwork VSpherePermissionScopeType = "Network"
+)
 
 // VSpherePlatformStatus holds the current status of the vSphere infrastructure provider.
 // +openshift:validation:FeatureGateAwareXValidation:featureGate=OnPremDNSRecords,rule="!has(self.dnsRecordsType) || self.dnsRecordsType == 'Internal' || (has(self.loadBalancer) && self.loadBalancer.type == 'UserManaged')",message="dnsRecordsType may only be set to External when loadBalancer.type is UserManaged"

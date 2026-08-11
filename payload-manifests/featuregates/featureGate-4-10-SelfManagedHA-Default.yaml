@@ -267,6 +267,9 @@
                         "name": "VSphereConfigurableMaxAllowedBlockVolumesPerNode"
                     },
                     {
+                        "name": "VSphereMultiAccountCredentials"
+                    },
+                    {
                         "name": "VSphereMultiVCenterDay2"
                     },
                     {

@@ -1476,6 +1476,11 @@ func (in UsernamePrefix) OpenAPIModelName() string {
 }
 
 // OpenAPIModelName returns the OpenAPI model name for this type.
+func (in VSphereComponentCredentials) OpenAPIModelName() string {
+	return "com.github.openshift.api.config.v1.VSphereComponentCredentials"
+}
+
+// OpenAPIModelName returns the OpenAPI model name for this type.
 func (in VSphereFailureDomainHostGroup) OpenAPIModelName() string {
 	return "com.github.openshift.api.config.v1.VSphereFailureDomainHostGroup"
 }
@@ -1488,6 +1493,11 @@ func (in VSphereFailureDomainRegionAffinity) OpenAPIModelName() string {
 // OpenAPIModelName returns the OpenAPI model name for this type.
 func (in VSphereFailureDomainZoneAffinity) OpenAPIModelName() string {
 	return "com.github.openshift.api.config.v1.VSphereFailureDomainZoneAffinity"
+}
+
+// OpenAPIModelName returns the OpenAPI model name for this type.
+func (in VSpherePermissionScope) OpenAPIModelName() string {
+	return "com.github.openshift.api.config.v1.VSpherePermissionScope"
 }
 
 // OpenAPIModelName returns the OpenAPI model name for this type.
@@ -1528,6 +1538,11 @@ func (in VSpherePlatformTopology) OpenAPIModelName() string {
 // OpenAPIModelName returns the OpenAPI model name for this type.
 func (in VSpherePlatformVCenterSpec) OpenAPIModelName() string {
 	return "com.github.openshift.api.config.v1.VSpherePlatformVCenterSpec"
+}
+
+// OpenAPIModelName returns the OpenAPI model name for this type.
+func (in VSphereSecretReference) OpenAPIModelName() string {
+	return "com.github.openshift.api.config.v1.VSphereSecretReference"
 }
 
 // OpenAPIModelName returns the OpenAPI model name for this type.
