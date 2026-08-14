@@ -1068,4 +1068,20 @@ var (
 					enhancementPR("https://github.com/openshift/enhancements/pull/2007").
 					enable(inClusterProfile(SelfManaged), inDevPreviewNoUpgrade()).
 					mustRegister()
+
+	FeatureGateClusterTrustBundle = newFeatureGate("ClusterTrustBundle").
+					reportProblemsToJiraComponent("kube-apiserver").
+					contactPerson("ahmedtd").
+					productScope(kubernetes).
+					enhancementPR("https://github.com/kubernetes/enhancements/issues/3257").
+					enable(inTechPreviewNoUpgrade(), inDevPreviewNoUpgrade()).
+					mustRegister()
+
+	FeatureGateClusterTrustBundleProjection = newFeatureGate("ClusterTrustBundleProjection").
+						reportProblemsToJiraComponent("kube-apiserver").
+						contactPerson("ahmedtd").
+						productScope(kubernetes).
+						enhancementPR("https://github.com/kubernetes/enhancements/issues/3257").
+						enable(inTechPreviewNoUpgrade(), inDevPreviewNoUpgrade()).
+						mustRegister()
 )

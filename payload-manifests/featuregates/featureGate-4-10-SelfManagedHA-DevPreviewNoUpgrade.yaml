@@ -151,6 +151,12 @@
                         "name": "ClusterMonitoringConfig"
                     },
                     {
+                        "name": "ClusterTrustBundle"
+                    },
+                    {
+                        "name": "ClusterTrustBundleProjection"
+                    },
+                    {
                         "name": "ClusterUpdateAcceptRisks"
                     },
                     {
